@@ -8,23 +8,52 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using AtlasAddressbook.Data;
 using AtlasAddressbook.Models;
+using Microsoft.AspNetCore.Identity;
+using AtlasAddressbook.Services.Interfaces;
+using AtlasAddressbook.Services;
+using AtlasAddressbook.Enums;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AtlasAddressbook.Controllers
 {
+    [Authorize]
     public class ContactsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly ICategoryService _categoryService;
+        private readonly IImageService _imageService;
+        private readonly SearchService _searchService;
+        private readonly IContactService _contactService;
 
-        public ContactsController(ApplicationDbContext context)
+        public ContactsController(ApplicationDbContext context,
+                                   UserManager<AppUser> userManager,
+                                   ICategoryService categoryService,
+                                   IImageService imageService,
+                                   IContactService contactService
+, SearchService searchService)
         {
             _context = context;
+            _userManager = userManager;
+            _categoryService = categoryService;
+            _imageService = imageService;
+            _searchService = searchService;
+            _contactService = contactService;
+
         }
 
         // GET: Contacts
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Contacts.Include(c => c.User);
-            return View(await applicationDbContext.ToListAsync());
+            string userId = _userManager.GetUserId(User);
+            var DBResults = _context.Contacts
+                .Include(c => c.User)
+                .Include(c => c.Categories)
+                .Where(c => c.UserId == userId);
+                
+
+            List<Contact> contacts = await DBResults.ToListAsync();
+            return View(contacts);
         }
 
         // GET: Contacts/Details/5
@@ -35,9 +64,8 @@ namespace AtlasAddressbook.Controllers
                 return NotFound();
             }
 
-            var contact = await _context.Contacts
-                .Include(c => c.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            Contact contact = await _contactService.GetContactByIdAsync(id.Value);
+
             if (contact == null)
             {
                 return NotFound();
@@ -47,32 +75,61 @@ namespace AtlasAddressbook.Controllers
         }
 
         // GET: Contacts/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id");
+
+            string userId = _userManager.GetUserId(User);
+
+            // Edit code for States Enum
+            ViewData["StatesList"] = new SelectList(Enum.GetValues(typeof(States)).Cast<States>().ToList());
+            ViewData["CategoryList"] = new MultiSelectList(await _categoryService.GetUserCategoriesAsync(userId), "Id", "Name");
+
             return View();
         }
+
+
 
         // POST: Contacts/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,UserId,FirstName,LastName,Birthday,Address1,Address2,City,State,ZipCode,Email,PhoneNumber,Created,ImageData,ImageType")] Contact contact)
+        public async Task<IActionResult> Create([Bind("Id,FirstName,LastName,Birthday,Address1,Address2,City,State,ZipCode,Email,PhoneNumber,ImageFile")] Contact contact, List<int> categoryList)
         {
             if (ModelState.IsValid)
             {
+                contact.UserId = _userManager.GetUserId(User);
+                contact.Created = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
+
+                if (contact.Birthday is not null)
+                {
+                    contact.Birthday = DateTime.SpecifyKind((DateTime)contact.Birthday, DateTimeKind.Utc);
+                }
+                if (contact.ImageFile != null)
+                {
+                    contact.ImageData = await _imageService.ConvertFileToByteArrayAsync(contact.ImageFile);
+                    contact.ImageType = contact.ImageFile.ContentType;
+                }
                 _context.Add(contact);
                 await _context.SaveChangesAsync();
+
+                await _categoryService.AddContactToCategoriesAsync(categoryList, contact.Id);
+
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", contact.UserId);
+
+            string userId = _userManager.GetUserId(User);
+            ViewData["StatesList"] = new SelectList(Enum.GetValues(typeof(States)).Cast<States>().ToList());
+            ViewData["CategoryList"] = new MultiSelectList(await _categoryService.GetUserCategoriesAsync(userId), "Id", "Name");
+
             return View(contact);
         }
 
         // GET: Contacts/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+
+
             if (id == null)
             {
                 return NotFound();
@@ -83,7 +140,11 @@ namespace AtlasAddressbook.Controllers
             {
                 return NotFound();
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", contact.UserId);
+            string userId = _userManager.GetUserId(User);
+
+            ViewData["StatesList"] = new SelectList(Enum.GetValues(typeof(States)).Cast<States>().ToList());
+            ViewData["CategoryList"] = new MultiSelectList(await _categoryService.GetUserCategoriesAsync(userId), "Id", "Name", await _categoryService.GetContactCategoriesAsync(contact.Id));
+
             return View(contact);
         }
 
@@ -92,7 +153,7 @@ namespace AtlasAddressbook.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,UserId,FirstName,LastName,Birthday,Address1,Address2,City,State,ZipCode,Email,PhoneNumber,Created,ImageData,ImageType")] Contact contact)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,UserId,FirstName,Created,LastName,Birthday,Address1,Address2,City,State,ZipCode,Email,PhoneNumber,ImageFile,ImageData,ImageType")] Contact contact, List<int> categoryList)
         {
             if (id != contact.Id)
             {
@@ -103,8 +164,32 @@ namespace AtlasAddressbook.Controllers
             {
                 try
                 {
+                    contact.Created = DateTime.SpecifyKind(contact.Created, DateTimeKind.Utc);
+
+                    if (contact.Birthday is not null)
+                    {
+                        contact.Birthday = DateTime.SpecifyKind((DateTime)contact.Birthday, DateTimeKind.Utc);
+                    }
+
+                    if (contact.ImageFile != null)
+                    {
+                        contact.ImageData = await _imageService.ConvertFileToByteArrayAsync(contact.ImageFile);
+                        contact.ImageType = contact.ImageFile.ContentType;
+                    }
+
                     _context.Update(contact);
                     await _context.SaveChangesAsync();
+
+                    var oldCategories = await _categoryService.GetContactCategoriesAsync(contact.Id);
+                    //Remove Contact from their categories(if any)
+                    foreach (var category in oldCategories)
+                    {
+                        await _categoryService.RemoveContactFromCategoryAsync(category.Id, contact.Id);
+                    }
+
+                    //Add contact to categories chosen by the user(if any)
+                    await _categoryService.AddContactToCategoriesAsync(categoryList, contact.Id);
+
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -119,7 +204,10 @@ namespace AtlasAddressbook.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", contact.UserId);
+
+            string userId = _userManager.GetUserId(User);
+            ViewData["StatesList"] = new SelectList(Enum.GetValues(typeof(States)).Cast<States>().ToList());
+            ViewData["CategoryList"] = new MultiSelectList(await _categoryService.GetUserCategoriesAsync(userId), "Id", "Name");
             return View(contact);
         }
 
