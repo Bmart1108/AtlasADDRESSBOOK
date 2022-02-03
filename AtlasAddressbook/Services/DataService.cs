@@ -20,6 +20,11 @@ namespace AtlasAddressbook.Services
             _categoryService = categoryService;
         }
 
+        public DateTime GetPostGresDate(DateTime datetime)
+        {
+            return DateTime.SpecifyKind(datetime, DateTimeKind.Utc);
+        }
+
         public async Task ManageDataAsync()
         {
             await _context.Database.MigrateAsync();
@@ -127,15 +132,14 @@ namespace AtlasAddressbook.Services
                 .Include(c => c.Categories)
                 .Include(c => c.Contacts)
                 .FirstOrDefault(u => u.Email == "tonystark@mailinator.com");
+            var contact = dbContextSvc.Contacts
+                .FirstOrDefault(u => u.Email == "hankmccoy@starktower.com");
 
-            foreach (var contact in user!.Contacts)
+            foreach (var category in user?.Categories!)
             {
-                foreach (var category in user.Categories)
-                {
-                    await categorySvc.AddContactToCategoryAsync(category.Id, contact.Id);
-                }
+                await categorySvc.AddContactToCategoryAsync(category.Id, contact!.Id);
             }
-
         }
+
     }
 }

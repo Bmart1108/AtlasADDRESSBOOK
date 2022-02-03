@@ -25,12 +25,14 @@ namespace AtlasAddressbook.Controllers
         private readonly IImageService _imageService;
         private readonly SearchService _searchService;
         private readonly IContactService _contactService;
+        private readonly DataService _dataService;
 
         public ContactsController(ApplicationDbContext context,
                                    UserManager<AppUser> userManager,
                                    ICategoryService categoryService,
                                    IImageService imageService,
-                                   IContactService contactService
+                                   IContactService contactService,
+                                   DataService dataService
 , SearchService searchService)
         {
             _context = context;
@@ -39,6 +41,7 @@ namespace AtlasAddressbook.Controllers
             _imageService = imageService;
             _searchService = searchService;
             _contactService = contactService;
+            _dataService = dataService;
 
         }
 
@@ -99,11 +102,11 @@ namespace AtlasAddressbook.Controllers
             if (ModelState.IsValid)
             {
                 contact.UserId = _userManager.GetUserId(User);
-                contact.Created = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
+                contact.Created = _dataService.GetPostGresDate(DateTime.Now);
 
-                if (contact.Birthday is not null)
+                if (contact.Birthday != null)
                 {
-                    contact.Birthday = DateTime.SpecifyKind((DateTime)contact.Birthday, DateTimeKind.Utc);
+                    contact.Birthday = _dataService.GetPostGresDate(contact.Birthday.Value);
                 }
                 if (contact.ImageFile != null)
                 {
