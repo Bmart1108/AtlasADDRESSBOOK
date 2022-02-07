@@ -8,11 +8,30 @@ html {
   }
 }
 
+
+
+
+
 html {
   position: relative;
   min-height: 100%;
 }
 
-body {
-  margin-bottom: 60px;
+
+body{
+    margin-bottom: 60px;
+}
+
+/******CONTACT LIST STYLES*****/
+.contactList-image{
+    max-width: 100%;
+    height: auto;
+}
+
+@media(min-width: 992px){
+
+    .contactList-image {
+        max-width: 200px;
+        height: auto;
+    }
 }

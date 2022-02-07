@@ -1,0 +1,70 @@
+﻿:root {
+    --dark-gs-color: #131313;
+    --light-gs-color: #ffffff;
+    --highlight-gs-color: yellow;
+}
+
+a {
+    color: var(--light-gs-color);
+    text-decoration: none;
+}
+
+    a:visited,
+    a:hover,
+    a:active,
+    a:focus {
+        color: var(--highlight-gs-color);
+        filter: brightness(1.2) !important;
+    }
+
+
+body {
+    color: var(--light-gs-color);
+}
+
+.pageBG {
+    background: url("/Img/AbstractSpheres.png");
+    background-size: cover;
+}
+
+.glass-bm-style {
+    color: var(--light-gs-color);
+    backdrop-filter: blur(15px);
+    background-color: rgba(153,223,255, 0.178, 0.17);
+    border-radius: 10px;
+    box-shadow: rgba(0, 0, 0, 0.3) 2px 8px 8px;
+    border: 2px rgba(255, 255, 255, 0.4) solid;
+    border-bottom: 2px rgba(40, 40, 40, 0.35) solid;
+    border-right: 2px rgba(40, 40, 40, 0.35) solid;
+}
+
+    .glass-bm-style.darkGlass {
+        color: var(--light-gs-color);
+    }
+
+    .glass-bm-style.lightGlass {
+        color: var(--dark-gs-color);
+    }
+
+.glass-button {
+    color: var(--light-gs-color);
+    display: inline-block;
+    border: 0;
+    padding: 5px;
+    text-decoration: none;
+    border-radius: 7px;
+    background-color: rgba(250, 250, 250, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    font-size: 1.2em;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+    .glass-button:hover {
+        background-color: rgba(255, 255, 255, 0.3);
+        border-color: var(--highlight-gs-color);
+        border: 1px solid var(--highlight-gs-color);
+        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px var(--formfocusShadow);
+        outline: 0 none;
+    }

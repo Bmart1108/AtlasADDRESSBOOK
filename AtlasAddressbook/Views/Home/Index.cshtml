@@ -1,8 +1,27 @@
-﻿@{
+﻿
+
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+
+<main class="flex-shrink-0">
+    <div class="container mt-5">
+    
+        <div class="row">
+            <div class="col-md-6 col-md-8 col-lg-7 py-5">
+                <h1 class="display-5 fw-bold mb-3">Manage all your contacts in one place</h1>
+                <h4 class="fw-normal">A simple, fast and scalable address book that helps you manage your contacts easily so you never lose contact information.</h4>
+
+                <a type="button" class="btn btn-warning btn-lg" asp-controller="contacts" asp-action="Index">Demo</a>
+                <a type="button" class="btn btn-warning btn-lg btn-center" asp-area="Identity" asp-page="/Account/Login">Login</a>
+                <h5 class="mt-3">Built with ASP>NET Core, C#, .NET 5, MVC, Bootstrap 5 and Postgres SQL</h5>
+                <h5 class="mt-3">Hosted with GitHub</h5>
+            </div>
+            <div class="col-md-6 col-md-4 col-lg-5 d-flex align-items-center justify-content-center order-first order-md-last p-3">
+                <img src="img/Untitled (1000 × 1000 px) (1).png" class="img-fluid" height="600" alt="App Logo">
+            </div>
+        </div>
+    </div>
+</main>

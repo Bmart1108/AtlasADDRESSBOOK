@@ -1,110 +1,117 @@
-﻿@model AtlasAddressbook.Models.Contact
-
+﻿@using AtlasAddressbook.Services.Interfaces
+@model AtlasAddressbook.Models.Contact
+@inject IImageService _imageService
 @{
     ViewData["Title"] = "Edit";
 }
 
 <h1>Edit</h1>
 
-<h4>Contact</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit" asp-controller="Contacts" enctype="multipart/form-data" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-            @*Hides what information we dont want to user to edit*@
-            <input type="hidden" asp-for="Id" />
-            <input type="hidden" asp-for="UserId" />
-            <input type="hidden" asp-for="Created" />
-            <input type="hidden" asp-for="ImageData" />
-            <input type="hidden" asp-for="ImageFile" />
+<h1>Contact</h1>
 
 
 
-            <div class="form-group">
-                <label asp-for="FirstName" class="control-label"></label>
-                <input asp-for="FirstName" class="form-control" />
-                <span asp-validation-for="FirstName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="LastName" class="control-label"></label>
-                <input asp-for="LastName" class="form-control" />
-                <span asp-validation-for="LastName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Birthday" class="control-label"></label>
-                <input asp-for="Birthday" class="form-control" />
-                <span asp-validation-for="Birthday" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Address1" class="control-label"></label>
-                <input asp-for="Address1" class="form-control" />
-                <span asp-validation-for="Address1" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Address2" class="control-label"></label>
-                <input asp-for="Address2" class="form-control" />
-                <span asp-validation-for="Address2" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="City" class="control-label"></label>
-                <input asp-for="City" class="form-control" />
-                <span asp-validation-for="City" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="State" class="control-label"></label>
-                <select asp-for="State" asp-items="ViewBag.StatesList" class="form-control"></select>
-                <span asp-validation-for="State" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ZipCode" class="control-label"></label>
-                <input asp-for="ZipCode" class="form-control" />
-                <span asp-validation-for="ZipCode" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PhoneNumber" class="control-label"></label>
-                <input asp-for="PhoneNumber" class="form-control" />
-                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-            </div>
 
-            <div class="form-group">
-                <label asp-for="ImageFile" class="control-label"></label>
-                <input asp-for="ImageFile" class="form-control" accept=".png,.jpg,.jpeg,.gif"
-                       onchange="document.getElementById('contactImage').src = window.URL.createObjectURL(this.files[0])" />
-                <span asp-validation-for="ImageFile" class="text-danger"></span>
-                @if (Model?.ImageData != null)
-                {
-                    <img id="contactImage" class="img-fluid img-thumbnail" style="width:100px;height:80px" src="data:image/*;base64,@(Convert.ToBase64String(Model.ImageData))">
-                }
-                else
-                {
-                    <img id="contactImage" class="img-fluid img-thumbnail" style="width:100px;height:100px" src="https://cdn.icon-icons.com/icons2/233/PNG/512/Contacts_26253.png">
-                }
-            </div>
 
-            <div class="form-group py-2">
-                <label for="Categories" class="control-label"></label>
-                <select name="CategoryList" class="form-select" asp-items="ViewBag.CategoryList" multiple></select>
+
+
+
+
+<div class="glass-bm-style darkGlass p-2">
+    <div class="row">
+        <div class="col-12 col-md-4">
+            <div asp-action="Edit" asp-controller="Contacts" enctype="multipart/form-data" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                @*Hides what information we dont want to user to edit*@
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="UserId" />
+                <input type="hidden" asp-for="Created" />
+                <input type="hidden" asp-for="ImageData" />
+                <input type="hidden" asp-for="ImageFile" />
             </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+            <img class="img-fluid" src="@_imageService.ConvertByteArrayToFile(Model.ImageData!, Model.ImageType!)" />
+            <label asp-for="ImageFile" class="control-label"></label>
+            <input asp-for="ImageFile" class="form-control" accept=".png,.jpg,.jpeg,.gif"
+                   onchange="document.getElementById('contactImage').src = window.URL.createObjectURL(this.files[0])" />
+            <span asp-validation-for="ImageFile" class="text-danger"></span>
+            @if (Model?.ImageData != null)
+            {
+                <img id="contactImage" class="img-fluid img-thumbnail" style="width:100px;height:80px" src="data:image/*;base64,@(Convert.ToBase64String(Model.ImageData))">
+            }
+            else
+            {
+                <img id="contactImage" class="img-fluid img-thumbnail" style="width:100px;height:100px" src="https://cdn.icon-icons.com/icons2/233/PNG/512/Contacts_26253.png">
+            }
+
+            <div>
+                <a asp-action="Index">Back to List</a>
             </div>
-        </form>
+        </div>
+
+        <div class="col-12 col-md-8">
+            <div class="row gy-2">
+
+                <div class="col-12 col-md-6">
+                    <label asp-for="FirstName" class="control-label"></label>
+                    <input asp-for="FirstName" class="form-control" />
+                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                </div>
+                <div class="col-12 col-md-6">
+                    <label asp-for="LastName" class="control-label"></label>
+                    <input asp-for="LastName" class="form-control" />
+                    <span asp-validation-for="LastName" class="text-danger"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Address1" class="control-label"></label>
+                    <input asp-for="Address1" class="form-control" />
+                    <span asp-validation-for="Address1" class="text-danger"></span>
+                </div>
+                <div class="col-12">
+                    <label asp-for="Address2" class="control-label"></label>
+                    <input asp-for="Address2" class="form-control" />
+                    <span asp-validation-for="Address2" class="text-danger"></span>
+                </div>
+                <div class="col-12 col-md-6">
+                    <label asp-for="City" class="control-label"></label>
+                    <input asp-for="City" class="form-control" />
+                    <span asp-validation-for="City" class="text-danger"></span>
+                </div>
+                <div class="col-12 col-md-4">
+                    <label asp-for="State" class="control-label"></label>
+                    <select asp-for="State" asp-items="ViewBag.StatesList" class="form-control"></select>
+                    <span asp-validation-for="State" class="text-danger"></span>
+                </div>
+                <div class="col-12 col-md-2">
+                    <label asp-for="ZipCode" class="control-label"></label>
+                    <input asp-for="ZipCode" class="form-control" />
+                    <span asp-validation-for="ZipCode" class="text-danger"></span>
+                </div>
+                <div class="col-6">
+                    <label asp-for="Birthday" class="control-label"></label>
+                    <input asp-for="Birthday" class="form-control" />
+                    <span asp-validation-for="Birthday" class="text-danger"></span>
+                </div>
+
+                <div class="col-6">
+                    Categories
+                    <select name="CategoryList" class="form-select" asp-items="ViewBag.categoryList" multiple></select>
+                </div>
+
+                <div class="form group">
+                    <input type="submit" value="Save" class="btn btn-primary float-end" />
+                </div>
+            </div>
+        </div>
     </div>
+
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+
 
 @section Scripts {
     @{
     await Html.RenderPartialAsync("_ValidationScriptsPartial");
-}
-}
+    }
+    }

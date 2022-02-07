@@ -17,7 +17,7 @@ namespace AtlasAddressbook.Services
         {
             var result = _context.Contacts.Include(c => c.Categories).Where(c => c.UserId == userId).AsQueryable();
 
-            if (searchString is not null)
+            if (searchString != null)
             {
                 result = result.Where(c => c.Address1!.ToLower().Contains(searchString.ToLower())
                 || c.Address2!.ToLower().Contains(searchString.ToLower())
@@ -25,9 +25,10 @@ namespace AtlasAddressbook.Services
                 || c.Email!.ToLower().Contains(searchString.ToLower())
                 || c.FirstName!.ToLower().Contains(searchString.ToLower())
                 || c.LastName!.ToLower().Contains(searchString.ToLower())
-                || c.Categories.Select(t => t.Name).Contains(searchString));
+                || c.Categories.Select(t => t.Name.ToLower()).Contains(searchString.ToLower()));
+               
             }
-            return result.OrderByDescending(c => c.FirstName);
+            return result.OrderByDescending(c => c.LastName).ThenByDescending(c => c.FirstName);
         }
 
     }

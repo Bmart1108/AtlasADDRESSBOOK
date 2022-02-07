@@ -1,125 +1,57 @@
 ﻿@model IEnumerable<AtlasAddressbook.Models.Contact>
-
+@using AtlasAddressbook.Services.Interfaces
+@inject IImageService _imageService
 @{
     ViewData["Title"] = "Index";
 }
 
 <h1>Index</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.FirstName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LastName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Birthday)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Address1)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Address2)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.City)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.State)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ZipCode)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PhoneNumber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Created)
-            </th>
-            <th>
-                Contact Image
-            </th>
-            <th>
-                Categories
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.User)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model!)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.FirstName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.LastName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Birthday)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Address1)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Address2)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.City)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.State)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ZipCode)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Email)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.PhoneNumber)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Created)
-                </td>
-                <td>
-                    @if (item?.ImageData != null)
-                    {
-                        <img class="img-fluid img-thumbnail" style="width:100px;height:80px" src="data:image/*;base64,@(Convert.ToBase64String(item.ImageData))">
-                    }
-                    else
-                    {
-                        <img class="img-fluid img-thumbnail" style="width:100px;height:100px" src="https://cdn.icon-icons.com/icons2/233/PNG/512/Contacts_26253.png">
-                    }
-                </td>
 
-                <td>
-                    @foreach(var category in item!.Categories)
-                    {
-                        <p>@category.Name</p>
-                    }
-                </td>
-                <td>
+  <button class="glass-button"> <a asp-action="Create" type="button">Create New</a></button> 
 
 
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+
+
+@foreach (var item in Model!)
+{
+
+
+
+    <div class="mb-3 glass-bm-style darkGlass">
+        <div class="row g-0">
+            <div class="col-md-4">
+                <img src="@_imageService.ConvertByteArrayToFile(item.ImageData, item.ImageType)" class="contactList-image" alt="...">
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5 class="card-title">@Html.DisplayFor(modelItem => item.FirstName) @Html.DisplayFor(modelItem => item.LastName)</h5>
+                    <div class="card-text">
+                        Email: @Html.DisplayFor(modelItem => item.Email)
+                    </div>
+                    <div class="card-text">
+                        Phone: @Html.DisplayFor(modelItem => item.PhoneNumber)
+                    </div>
+
+                    <a asp-action="Edit" asp-route-id="@item.Id">
+                        <i class="bi-pencil-fill" style="font-size: 1.5rem; color:white;"></i>
+                    </a>
+
+                    <a asp-action="Details" asp-route-id="@item.Id">
+                        <i class="bi-person-fill" style="font-size: 1.5rem; color:white;"></i>
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@item.Id">
+                        <i class="bi-trash-fill" style="font-size: 1.5rem; color:red;"></i>
+                    </a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+}
+
+
+
 

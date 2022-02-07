@@ -32,8 +32,9 @@ namespace AtlasAddressbook.Controllers
                                    ICategoryService categoryService,
                                    IImageService imageService,
                                    IContactService contactService,
-                                   DataService dataService
-, SearchService searchService)
+                                   DataService dataService,
+                                   SearchService searchService)
+
         {
             _context = context;
             _userManager = userManager;
@@ -59,6 +60,17 @@ namespace AtlasAddressbook.Controllers
             return View(contacts);
         }
 
+        //Search Action
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult SearchContacts(string searchString)
+        {
+            var userId = _userManager.GetUserId(User);
+
+            var model = _searchService.SearchContacts(searchString, userId);
+
+            return View(nameof(Index), model);
+        }
         // GET: Contacts/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -167,9 +179,9 @@ namespace AtlasAddressbook.Controllers
             {
                 try
                 {
-                    contact.Created = DateTime.SpecifyKind(contact.Created, DateTimeKind.Utc);
+                    contact.Created = _dataService.GetPostGresDate(DateTime.Now);
 
-                    if (contact.Birthday is not null)
+                    if (contact.Birthday != null)
                     {
                         contact.Birthday = DateTime.SpecifyKind((DateTime)contact.Birthday, DateTimeKind.Utc);
                     }
